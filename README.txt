@@ -1,43 +1,19 @@
-# Student REST API
+# PFE Reports API
 
-A simple REST API built with Flask for managing student records. It lets clients create students and retrieve the full list of students as JSON.
+A Flask REST API for browsing student PFE reports. It has input validation,
+a fixed token for reports, and an expiring JWT for confidential student data.
+It runs in Docker.
 
-## Features
+## Run it
+1. Copy `.env.example` to `.env` and fill in the values.
+2. docker build -t pfe-api .
+3. docker run -p 5000:5000 --env-file .env pfe-api
 
-- Add a new student with first name, last name, and reports
-- Retrieve all stored students
-- Auto-generated student IDs
-- JSON request and response format
+The API runs at http://127.0.0.1:5000
 
 ## Endpoints
-
-| Method | Endpoint   | Description          |
-|--------|------------|----------------------|
-| GET    | `/student` | Get all students     |
-| POST   | `/student` | Add a new student    |
-
-### Example POST body
-
-```json
-{
-  "Fname": "John",
-  "Lname": "Doe",
-  "reports": []
-}
-```
-
-## Getting Started
-
-1. Install Flask:
-```bash
-   pip install flask
-```
-2. Run the app:
-```bash
-   flask run
-```
-3. The API will be available at `http://127.0.0.1:5000`.
-
-## Notes
-
-Data is stored in memory, so it resets whenever the server restarts.
+- POST /students
+- GET /students/<ID_S>  (requires student token)
+- POST /reports
+- GET /reports  (requires reports token)
+- POST /auth/student-token
