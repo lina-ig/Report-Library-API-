@@ -11,10 +11,10 @@ app = Flask(__name__)
 LEVELS = ["Freshman", "Sophomore", "Junior", "Senior", "Master's"]
 
 # ---------- Tokens ----------
-REPORTS_TOKEN = "reports-token-123"          # fixed token, fine in the code
+REPORTS_TOKEN = "reports-token-123"          # fixed token
 SECRET_KEY = os.environ["SECRET_KEY"]        # signs student tokens (from .env)
 STUDENTS_SECRET = os.environ["STUDENTS_SECRET"]
-STUDENT_TOKEN_SECONDS = 5       # student tokens live 15 minutes
+STUDENT_TOKEN_SECONDS = 15 * 60       # student tokens live 15 minutes
 
 def get_bearer():
     """Return the token from the Authorization header, or None."""
@@ -167,4 +167,4 @@ def get_reports():
     return jsonify([r.to_dict() for r in reports]), 200
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000)
