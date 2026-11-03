@@ -1,0 +1,117 @@
+import uuid
+from flask import request, Flask
+from flask_smorest import abort
+from db import students, reports
+app = Flask(__name__)
+
+@app.get("report/<string:report_id>")
+def get_report(report_id):
+    try:
+        return reports[report_id]
+    except KeyError :
+        abort(404, message="missing field")
+
+@app.post("/report")
+def create_report():
+    report_data= request.get_jason()
+    if (
+        "title" not in report_data
+        or "type" not in report_data
+        or "k1" not in report_data
+        or "k2" not in report_data
+        or "k3" not in report_data
+    ):
+        abort(404, message="missing fields")
+    for report in reports.values():
+        if (
+            report["title"] == report_data["title"]
+            and report["type"] == report_data["type"]
+            and report["k1"] == report_data["k1"]
+            and report["k2"] == report_data["k2"]
+            and report["k3"] == report_data["k3"]
+        ):
+            abort(404, message="Report already exists")
+    if report_data["student_id"] not in students:
+        abort(404, message= "Student not found")
+    report_id = uuid.uuid4().hex
+    report ={**report_data, "id": report_id}
+    reports[report_id] = report
+    return report
+
+@app.post("/report")
+def get_all_reports():
+    return {"reports":list(reports.values())}
+
+
+
+@app.get("/student")
+def get_students ():
+    return {"students": list(students.values())}
+
+@app.post("/student")
+def add_student():
+    student_data = request.get_json()
+    if "Fname" not in student_data or "Lname" not in student_data:
+        abort(404, message="missing fields")
+    for student in students.values():
+        if (
+            student["Fname"] == student_data["Fname"]
+            and student["Lname"] == student_data["Lname"]
+        ):
+            abort(404, message="Student already exists")
+    student_id= uuid.uuid4.hex
+    student = {**student_data, "id": student_id}
+    students[student_id] = student
+    return student, 201
+
+
+@app.post("/student/<int:student_id>")
+def get_student(student_id):
+    try:
+        return students[student_id]
+    except KeyError:
+        abort(404, message="Student not found")
+
+@app.delete("/student/<int:student_id>")
+def delete_student(student_id):
+    if student_id not in students:
+        abort(404, message="Student not found")
+    del students[student_id]
+    return {"message": "Student deleted successfully"}
+
+@app.delete("/report/<string:report_id>")
+def delete_report(report_id):
+    if report_id not in reports:
+        abort(404, message="Report not found")
+    del reports[report_id]
+    return {"message": "Report deleted successfully"}
+
+@app.put("/student/<int:student_id>")
+def update_student(student_id):
+    if student_id not in students:
+        abort(404, message="Student not found")
+    student_data = request.get_json()
+    if "Fname" not in student_data or "Lname" not in student_data:
+        abort(404, message="missing fields")
+    students[student_id].update(student_data)
+    return students[student_id]
+
+@app.put("/report/<string:report_id>")
+def update_report(report_id):
+    if report_id not in reports:
+        abort(404, message="Report not found")
+    report_data = request.get_json()
+    if (
+        "title" not in report_data
+        or "type" not in report_data
+        or "k1" not in report_data
+        or "k2" not in report_data
+        or "k3" not in report_data
+    ):
+        abort(404, message="missing fields in the json payload")
+    try:
+        report = reports[report_id]
+        report |= report_data 
+        return reports[report_id]
+    except KeyError:
+        abort(404, message="Student not found")

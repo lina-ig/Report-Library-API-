@@ -1,7 +1,25 @@
+import uuid
 from flask import request, Flask
+from db import students, reports
 app = Flask(__name__)
 
-students = []
+@app.get("report/<string:report_id>")
+def get_report(report_id):
+    try:
+        return reports[report_id]
+    except KeyError :
+        return {"messaeg": "Report not found"}, 404
+
+@app.post("/report")
+def create_report():
+    report_data= request.get_jason()
+    if report_data["student_id"] not in students:
+        return {"message": "stuent not found"}, 400
+    report_id = uuid.uuid4().hex
+    report_id = uuid {**report_data, "id": "report_id"}
+    reports[report_id] = report
+    return report
+
 
 @app.get("/student")
 def get_students ():
